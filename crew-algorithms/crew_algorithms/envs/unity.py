@@ -395,7 +395,7 @@ class UnityEnv(UnityWrapper):
         self,
         file_name: str | None = None,
         seed: int = 0,
-        no_graphics: bool = False,
+        no_graphics: bool = True,  # False unless headless mode
         timeout_wait: int = 60,
         side_channels: list[SideChannel] | None = None,
         log_folder: str | None = None,
@@ -408,6 +408,16 @@ class UnityEnv(UnityWrapper):
                 f" {self.git_url}"
             )
         self.file_name = file_name
+
+        # Safely handle additional_args
+        user_args = env_kwargs.pop("additional_args", None)
+        my_args = ["-batchmode"]  # [] for normal mode or ["-batchmode"] for headless mode
+
+        if user_args is not None:  # safely passing on arguments coming from rl_utils.make_base_env().
+            final_args = list(set(user_args + my_args))
+        else:
+            final_args = my_args
+
         return super()._build_env(
             UnityEnvironment(
                 file_name,
@@ -416,6 +426,7 @@ class UnityEnv(UnityWrapper):
                 timeout_wait=timeout_wait,
                 side_channels=side_channels,
                 log_folder=log_folder,
+                additional_args=final_args,
                 **env_kwargs,
             )
         )
