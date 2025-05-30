@@ -163,3 +163,5 @@ cython_debug/
 
 /Data/*
 !/Data/examples
+/Experiment_Pipeline/game_build/
+/LSL_apps/
